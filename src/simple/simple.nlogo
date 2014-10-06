@@ -1,38 +1,47 @@
 globals [
   min-initial-wallet
-  max-initial-wallet
+  max-wallet
   min-reinvest
   max-reinvest
-  min-steal-prob
   min-turtle-size
+  min-cost-of-living-frac
+  max-cost-of-living-frac
 ]
 
 turtles-own [
   wallet
   reinvest
-  steal-prob
+  cost-of-living
 ]
 
 to setup
   clear-all
   
-  ; define global variables
+  ;; define global variables
   set min-initial-wallet 10
-  set max-initial-wallet 100
+  set max-wallet 100
   set min-reinvest 0
-  set max-reinvest 1
-  set min-steal-prob 0
+  set max-reinvest 0.2
+  set min-cost-of-living-frac 0.1
+  set max-cost-of-living-frac 0.5
   
-  ; create turtles, specify properties
+  ;; create turtles, specify properties
   ask patches [sprout 1] ; one turtle on each "patch"
   ask turtles [
-    set wallet min-initial-wallet + random max-initial-wallet
-    set reinvest min-reinvest + random max-reinvest
-    set steal-prob min-steal-prob + random (1 - min-steal-prob)
+    set wallet min-initial-wallet + random max-wallet ; uniform dist--other options are poss
+    set reinvest min-reinvest + random-float max-reinvest
+    
+    ;; simple cost of living:
+    ;set cost-of-living 20
+    
+    ;; fancier version of cost of living:
+    ;; c-o-l is a fraction of max-wallet
+    set cost-of-living max-wallet * 
+                        (min-cost-of-living-frac + 
+                          random-float (max-cost-of-living-frac - min-cost-of-living-frac))
 
-    set shape "circle"
-    set color red   
-    set size 0.4 + (1 - 0.4) * (wallet / 100)
+    set shape "square"
+    update-turtle-appearance
   ]
 
   reset-ticks
@@ -40,13 +49,31 @@ end
 
 
 to go
+  ask turtles with [wallet = 0] [die]
   
   ask turtles [
-    set wallet wallet + (reinvest * wallet)
+    set wallet wallet + (reinvest * wallet) - cost-of-living
+    
+    if wallet > max-wallet [
+      set wallet max-wallet
+    ]
+
+    if wallet < 0 [
+      set wallet 0
+    ]
+    
     set size 0.4 + (1 - 0.4) * (wallet / 100)
+    update-turtle-appearance
   ] 
 
   tick
+end
+
+to update-turtle-appearance
+  let wallet-fraction wallet / max-wallet
+  set size 0.4 + (1 - 0.4) * wallet-fraction
+  set color 15
+  ;set color scale-color violet wallet max-wallet 0
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
