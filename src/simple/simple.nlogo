@@ -2,7 +2,7 @@ globals [
   min-initial-wallet
   max-wallet
   min-reinvest
-  max-reinvest
+  ;max-reinvest
   min-turtle-size
   min-cost-of-living-frac
   max-cost-of-living-frac
@@ -21,7 +21,7 @@ to setup
   set min-initial-wallet 10
   set max-wallet 100
   set min-reinvest 0
-  set max-reinvest 0.2
+  ;set max-reinvest 0.2
   set min-cost-of-living-frac 0.1
   set max-cost-of-living-frac 0.5
   
@@ -52,7 +52,7 @@ to go
   ask turtles with [wallet = 0] [die]
   
   ask turtles [
-    set wallet wallet + (reinvest * wallet) - cost-of-living
+    set wallet (wallet + (reinvest * wallet) - cost-of-living)
     
     if wallet > max-wallet [
       set wallet max-wallet
@@ -62,7 +62,7 @@ to go
       set wallet 0
     ]
     
-    set size 0.4 + (1 - 0.4) * (wallet / 100)
+    set size 0.4 + (1 - 0.4) * (wallet / max-wallet)
     update-turtle-appearance
   ] 
 
@@ -136,6 +136,21 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+2
+48
+147
+82
+max-reinvest
+max-reinvest
+0
+1
+0.2
+0.1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
